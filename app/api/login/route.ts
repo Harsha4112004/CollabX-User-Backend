@@ -8,10 +8,10 @@ connect();
 
 export async function POST(request: NextRequest) {
     try {
-        const {username,password} = await request.json();
-        if(!username){
+        const {email,password} = await request.json();
+        if(!email){
             return NextResponse.json(
-                {message: "Name is required"},
+                {message: "Email is required"},
                 {status: 400}
             );
         }
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
                 {status: 400}
             );
         }
-        const user = await User.findOne({username});
+        const user = await User.findOne({email});
         if(!user){
             return NextResponse.json(
                 {message: "User does not exist"},
