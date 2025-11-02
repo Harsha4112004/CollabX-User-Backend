@@ -9,15 +9,9 @@ export const sendMail = async ({
 }: {
   email: string;
   emailType: "VERIFY" | "RESET";
-  userId?: string;
+  userId: string;
 }) => {
   try {
-    // Always fetch user by email
-    const user = await User.findOne({ email });
-    if (!user) {
-      throw new Error("User not found with that email");
-    }
-
     let subject = "";
     let html = "";
 
@@ -27,17 +21,17 @@ export const sendMail = async ({
       port: 465,
       secure: true,
       auth: {
-        user: process.env.USER, // Gmail or SMTP username
+        user: process.env.USER, // Gmail or custom SMTP user
         pass: process.env.PASSWORD, // App password
       },
     });
 
-    // 🟢 Case 1: Email Verification (OTP)
+    // 👉 Case 1: Email Verification (OTP)
     if (emailType === "VERIFY") {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const otpExpiry = Date.now() + 5 * 60 * 1000; // 5 minutes
 
-      await User.findByIdAndUpdate(user._id, {
+      await User.findByIdAndUpdate(userId, {
         verifyOtp: otp,
         verifyOtpExpiry: otpExpiry,
       });
@@ -54,11 +48,11 @@ export const sendMail = async ({
       `;
     }
 
-    // 🔵 Case 2: Password Reset (JWT Link)
+    // 👉 Case 2: Password Reset (JWT link)
     else if (emailType === "RESET") {
-      // Generate a short-lived JWT (15 min)
+      // Generate a short-lived JWT (expires in 15 mins)
       const token = jwt.sign(
-        { userId: user._id, email: user.email },
+        { userId },
         process.env.JWT_SECRET as string,
         { expiresIn: "15m" }
       );
@@ -66,8 +60,8 @@ export const sendMail = async ({
       // Create the reset link
       const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
-      // Save token (optional, can be used for invalidation)
-      await User.findByIdAndUpdate(user._id, {
+      // Save token hash (optional for verification later)
+      await User.findByIdAndUpdate(userId, {
         resetToken: token,
         resetTokenExpiry: Date.now() + 15 * 60 * 1000,
       });
@@ -87,7 +81,7 @@ export const sendMail = async ({
       `;
     }
 
-    // ✉️ Send email
+    // Send email
     const res = await transport.sendMail({
       from: `"CollabX" <${process.env.USER}>`,
       to: email,
@@ -95,10 +89,10 @@ export const sendMail = async ({
       html,
     });
 
-    console.log("✅ Email sent:", res.messageId);
+    console.log("Email sent:", res.messageId);
     return res;
   } catch (error) {
-    console.error("❌ Error sending email:", error);
+    console.error("Error sending email:", error);
     throw new Error("Failed to send email");
   }
 };
