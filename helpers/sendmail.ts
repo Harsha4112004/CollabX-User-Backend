@@ -62,8 +62,8 @@ export const sendMail = async ({
 
       // Save token hash (optional for verification later)
       await User.findByIdAndUpdate(userId, {
-        resetToken: token,
-        resetTokenExpiry: Date.now() + 15 * 60 * 1000,
+        forgotPasswordToken: token,
+        forgotPasswordExpiry: Date.now() + 15 * 60 * 1000,
       });
 
       subject = "Password Reset Request";
