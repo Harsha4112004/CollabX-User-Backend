@@ -58,7 +58,7 @@ export const sendMail = async ({
       );
 
       // Create the reset link
-      const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+      const resetLink = `http://localhost:5173/reset-password?token=${token}`;
 
       // Save token hash (optional for verification later)
       await User.findByIdAndUpdate(userId, {
