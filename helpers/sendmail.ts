@@ -53,7 +53,7 @@ export const sendMail = async ({
       // Generate a short-lived JWT (expires in 15 mins)
       const token = jwt.sign(
         { userId },
-        process.env.JWT_SECRET as string,
+        process.env.TOKEN_SECRET as string,
         { expiresIn: "15m" }
       );
 
