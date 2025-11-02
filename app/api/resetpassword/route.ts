@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Invalid or expired token" }, { status: 400 });
     }
 
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(decoded.userId);
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
