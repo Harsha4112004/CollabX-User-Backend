@@ -7,7 +7,7 @@ export function middleware(request: Request) {
   // Allow only specific frontend(s)
   const allowedOrigins = [
     "http://localhost:5173",
-    "https://your-frontend-domain.vercel.app",
+    "https://collabx-two.vercel.app/",
   ];
 
   const isAllowedOrigin = allowedOrigins.includes(origin);
